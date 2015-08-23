@@ -29,6 +29,55 @@ import urllib2
 #===== functions ==========
 global el_matrix
 el_matrix = {}
+
+
+def checkinp(inpfile):
+    inp = open(inpfile, 'r')
+    physgroup = {}
+    liner = 0
+    elements = ""
+    physer = 'na'
+    for line in inp:
+        line = line.lower()
+        line = line.replace('\n','')
+        if "*element" in line and "type" in line:          
+            if elements != "":           
+                physgroup[physer] = elements.split(',')
+            physer = line.split('elset=')[1]           
+            liner = 1
+            elements = ""
+        
+        elif "*" in line:
+            liner = 2
+            pass
+
+        elif liner==1:  #reading elements
+            line = line.replace('\n','')
+            line = line.replace('\t','')
+            line = line.replace(' ','')
+
+            if line[-1] != ',':
+                line +=','
+            elements += line
+        else:
+            pass
+
+    physgroup[physer] = elements.split(',')
+
+    phys3 = ""
+    physgroup2 = {}
+
+    for n,a in enumerate(physgroup.keys()):
+        idnum = str(6+n+1)
+        phys3 += '3 %s "MAT-%s"\n'%(idnum, a)
+        physgroup2[idnum] = physgroup[a]
+
+    physgroup=""
+    num1=idnum
+
+    return num1, phys3, physgroup2
+
+
 def write_el_matrix(maxmin,nodes):
     try: 
         el_matrix[maxmin].append(nodes) #assumes that el_matrix[maxmin] exists
@@ -57,16 +106,27 @@ def check_el_matrix (maxmin, el_line):
             write_el_matrix(maxmin, temp)  #maxmin comes from calling the function - it is the boundary name
             #{xmax: [(1,2,3), (1,2,3)], xmin: [(1,2,3),(1,2,3)]}
 
-f = open('mesh-manip\\local1.msh', 'r')
+phys3 = ''
+num1 = 8
+check_inp = raw_input("chedk inp (t or f - (file: local10.inp): ")
+if check_inp == 't':
+
+    inpfile = 'mesh-manip\\local10.inp'
+    num1, phys3, new_mats = checkinp(inpfile)
+
+f = open('mesh-manip\\local11.msh', 'r')
 first = open('mesh-manip\\first.msh', 'w')
 last = open('mesh-manip\\last.msh', 'w')
 ellines = ""
 
 #add boundaries=======
 
-phys1='$PhysicalNames\n8\n2 2 "mmExtBoundary_Y_plus"\n2 3 "mmExtBoundary_Z_minus"\n2 4 "mmExtBoundary_Y_minus"\n2 5 "mmExtBoundary_X_minus\n'
-phys2 = '2 6 "mmExtBoundary_X_plus"\n2 7 "mmExtBoundary_Z_plus"\n3 1 "Inclusion"\n3 8 "Matrix"\n$EndPhysicalNames\n'
-physical_names = phys1 + phys2
+phys1='$PhysicalNames\n%s\n2 3 "mmExtBoundary_Y_plus"\n2 4 "mmExtBoundary_Z_minus"\n2 5 "mmExtBoundary_Y_minus"\n2 6 "mmExtBoundary_X_minus\n'%(str(num1))
+phys2 = '2 7 "mmExtBoundary_X_plus"\n2 8 "mmExtBoundary_Z_plus"\n 3 1 "Inclusion"\n3 2 "Matrix"\n'
+phys4 = '$EndPhysicalNames\n'
+physical_names = phys1 + phys2 + phys3 + phys4
+
+
 
 #========node parsing========
 
@@ -78,7 +138,7 @@ y_node_mat=[]
 z_node_mat=[]
 global list_list
 list_list={}
-
+elcount = 0
 
 for line in f:
     line = line.replace("\t", " ")
@@ -189,12 +249,15 @@ for line in f:
     elif el_list==1:
 
         #this is where i need to copy and start new
+
         first.close()
         shutil.copyfile('mesh-manip\\first.msh', 'mesh-manip\\first1.msh')
         first=open('mesh-manip\\first.msh','w')
+
         new=open('mesh-manip\\new.msh','w')
         #get_number of nodes
         #this NEEDS TO BE ADDED TO AND PRINTED TO NEW
+
         number_of_els = int(line)
         el_list = 2
 
@@ -208,35 +271,49 @@ for line in f:
     elif el_list == 3:
         pass
         
-    elif el_list == 2:
-        ellines += line #need to create a full list to add to "new"
+    elif el_list == 2:  #GET ALL ELEMENTS
+        elcount +=1
 
         line = line.replace("\n","")
         el_line = line.split(' ')
+
+        if check_inp == 't':
+            for idr in new_mats: #inpr is {7 (mat): [1,2,3,4 (element ids), 8(fib): [1,2,3]}
+                if el_line[0] in new_mats[idr]:  #if element id in list, change that ID to the proper one
+                    el_line[3] = str(idr)
+                    el_line[4] = str(idr)
+
+                    #5153 5 3 2 2 0 1883 1880 4282 4283 1887 1884 4286 4287
+                    #19   5 2 2 1   6 2 3 5 7 1 4 8
+
+        el_line[0] = str(elcount) #renumber elements!
+
+        ellines += " ".join(el_line)+'\n' #need to create a full list to add to "new"
+        #guiTest - justSaveAs - 
 
         if el_line[1] == '4': #type is tet, get 4 els
             type = 'tet'            
             start=5
             stop=8
             #check if min-maxes exist
-            print "Checking Elements: " + el_line[0]
-
-
-            q = Queue.Queue()
+            print "Checking Tet Elements: " + el_line[0]
 
             for key in list_list: #list_list is {xmax: allnodes, xmin: allnodes, }
-                t = threading.Thread(target=check_el_matrix, args = (key, el_line[start:stop+1]))
-                t.daemon = True
-                t.start()
-            s = q.get()
+                check_el_matrix(key, el_line[start:stop+1]) 
 
-                #check_el_matrix(key, el_line[start:stop+1]) 
+            #q = Queue.Queue()
+            #for key in list_list: #list_list is {xmax: allnodes, xmin: allnodes, }
+            #    t = threading.Thread(target=check_el_matrix, args = (key, el_line[start:stop+1]))
+            #    t.daemon = True
+            #    t.start()
+            #    s = q.get()
+            #check_el_matrix(key, el_line[start:stop+1]) 
 
         elif el_line[1] == '5': #type is brick, get 8 els
             type = 'brick'
             start=6
             stop=13
-            print "Checking Elements: " + el_line[0]
+            print "Checking Hex Elements: " + el_line[0]
             #check if min-maxes exist
             for key in list_list: #list_list is {xmax: allnodes, xmin: allnodes, }
                 check_el_matrix(key, el_line[start:stop+1]) 
@@ -263,7 +340,7 @@ for key in el_matrix:
 
 
 incrementID = 40
-typeID = 1
+typeID = 2  #where the phys group counting starts
 
 print "Writing and Merging Files"
 
@@ -271,6 +348,9 @@ new.write(str(number_of_els+length) + "\n")
 new.write(ellines)
 
 for key in el_matrix:
+
+    #writing boundary surfaces
+
     incrementID +=1
     typeID += 1  
     for node_list in el_matrix[key]:  #gives (1,2,3) 

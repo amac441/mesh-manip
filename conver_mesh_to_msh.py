@@ -5,10 +5,12 @@ n = open("matrix_fiber.msh", 'w')
 starter = "$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$PhysicalNames\n"
 groups = 1
 
-#3
-#1 1 "Inclusion"
-#2 2 "mmExtBoundary_Z_minus"
-#3 3 "Matrix"
+#5
+#0 4 "ypluspoint"
+#1 1 "internal"
+#1 2 "ymin"
+#1 3 "yplus"
+#2 5 "layer"
 
 ender = "$EndPhysicalNames\n$Nodes"
 
@@ -52,8 +54,9 @@ n.write('$EndElements \n')
 #======== JUST NEED HEX =====
     #element list 
     #$Elements
-    #number-of-elements 
+    #number-of-elements
     #elm-number elm-type number-of-tags < tag > 
+         #<tags> - when 3 = physical volume, physical volume, 0
     #node-number-list
 
     elif e_type == "c3d8":  #TYPE=C3D8 (brick)

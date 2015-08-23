@@ -1,0 +1,58 @@
+Info: Discarding current dataset...
+Info: Current mesh has been discarded.
+Info: All information has been discarded.
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm loaded.
+Info: Discarding current dataset...
+Info: Current mesh has been discarded.
+Info: All information has been discarded.
+Info: Current mesh has been discarded.
+Warning: Abaqus import requirements: 
+  - Node numbering must be sequential and continuous.
+Info: Geometry loaded successfully.
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm saved.
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm saved.
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm saved.
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm saved.
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm saved.
+Info: Result data files deleted from directory res/:
+
+Info: Submitting MultiMech Solver local job...
+Number of processors: 1
+Type of analysis: Single scale
+Input file path: C:/Users/Andrew/Documents/ASP/salesforce_lead_automate/salesforce_lead_automate/mesh-manip/createmesh/mm/Local2.mm
+
+Info: : License Status : Checking... 
+Info: OK
+
+
+
+: Copyright (C) MultiMech R&D, LLC.  All rights reserved.
+: -------------------------------------------------------
+:   MultiMech Solver (TM)
+
+: -------------------------------------------------------
+: Build Version    : 2015.08.04
+: Build Type       : win_x86_64-release
+: Build Date       : Aug  4 2015
+: Build Time       : 05:19:28
+: Launch Date      : Tue Aug 04 09:54:05 2015
+: Path             : multimech
+: Num of Proc      : 1
+: Machine Name     : AMAC
+
+  Writing input data...
+
+  Solution Step:     1
+
+
+
+  Time to solve problem: 13 seconds
+
+
+
+  Total time of execution: 15 seconds
+
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm saved.
+Info: File C:\Users\Andrew\Documents\ASP\salesforce_lead_automate\salesforce_lead_automate\mesh-manip\createmesh\Local2.gmm saved.
+Info: Post processing using Gmsh.
+Info: Gmsh exited successfully.
